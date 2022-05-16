@@ -46,13 +46,13 @@ class ProductTag(BaseModel):
     tag = ForeignKeyField(Tag)
 
 
-class Purchase(BaseModel):
-    buyer = ForeignKeyField(User)
-    product = ForeignKeyField(Product)
-    quantity = IntegerField()
+# class Purchase(BaseModel):
+#     buyer = ForeignKeyField(User)
+#     product = ForeignKeyField(Product)
+#     quantity = IntegerField()
 
 
 def create_tables():
     with db:
         db.create_tables([User, Product, UserProduct,
-                         Tag, ProductTag, Purchase])
+                         Tag, ProductTag])

@@ -24,7 +24,7 @@ def search(term):
         .where(product_name.contains(search_term) | product_description.contains(search_term))
     )
 
-    return [product for product in products]
+    return [product.name for product in products]
 
 
 def list_user_products(user_id):
@@ -35,39 +35,56 @@ def list_user_products(user_id):
                 .join(User)
                 .where(User.id == user_id))
 
-    return [product for product in products]
+    return [product.name for product in products]
 
 
-def list_products_per_tag(tag_id):
+def list_products_per_tag(tag):
 
     products = (Product
                 .select()
                 .join(ProductTag)
                 .join(Tag)
-                .where(Tag.id == tag_id))
+                .where(Tag.label == tag))
 
-    return [product for product in products]
+    return [product.name for product in products]
 
 
-# def add_product_to_catalog(user_id, product):
-# changed parameter "product" into "product_id"
 def add_product_to_catalog(user_id, product_id):
-    UserProduct.create(user=user_id, product=product_id)
+    try:
+        UserProduct.create(user=user_id, product=product_id)
+        return True
+    except:
+        return False
+
+
+def remove_product_from_catalog(user_id, product_id):
+    try:
+        products = (UserProduct
+                    .select()
+                    .where(
+                        (UserProduct.user_id == user_id) & (UserProduct.product_id == product_id)
+                        )
+                    )
+        for product in products:
+            product.delete_instance()
+        return True
+    except:
+        return False
 
 
 def update_stock(product_id, new_quantity):
-    product = Product.get(Product.id == product_id)
-    product.in_stock = new_quantity
-    product.save()
+    try:
+        product = Product.get(Product.id == product_id)
+        product.in_stock = new_quantity
+        product.save()
+        return True
+    except:
+        return False
+   
+
+def purchase_product(product_id, buyer_id, seller_id):
+    add_product_to_catalog(buyer_id, product_id)
+    remove_product_from_catalog(seller_id, product_id)
+    
 
 
-def purchase_product(product_id, buyer_id, quantity):
-    Purchase.create(product=product_id, buyer=buyer_id, quantity=quantity)
-
-
-def remove_product(product_id):
-    products = (UserProduct
-                .select()
-                .where(UserProduct.product_id == product_id))
-    for product in products:
-        product.delete_instance()
