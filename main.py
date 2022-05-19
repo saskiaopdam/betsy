@@ -62,8 +62,9 @@ def remove_product_from_catalog(user_id, product_id):
         products = (UserProduct
                     .select()
                     .where(
-                        (UserProduct.user_id == user_id) & (UserProduct.product_id == product_id)
-                        )
+                        (UserProduct.user_id == user_id) & (
+                            UserProduct.product_id == product_id)
+                    )
                     )
         for product in products:
             product.delete_instance()
@@ -75,16 +76,14 @@ def remove_product_from_catalog(user_id, product_id):
 def update_stock(product_id, new_quantity):
     try:
         product = Product.get(Product.id == product_id)
-        product.in_stock = new_quantity
+        product.quantity = new_quantity
         product.save()
         return True
     except:
         return False
-   
-
-def purchase_product(product_id, buyer_id, seller_id):
-    add_product_to_catalog(buyer_id, product_id)
-    remove_product_from_catalog(seller_id, product_id)
-    
 
 
+def purchase(product_id, buyer_id, seller_id, quantity, date):
+    Purchase.create(product=product_id, buyer=buyer_id, seller=seller_id, quantity=quantity, date=date)
+    # add_product_to_catalog(buyer_id, product_id)
+    # remove_product_from_catalog(seller_id, product_id)

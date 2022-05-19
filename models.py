@@ -11,22 +11,18 @@ class BaseModel(Model):
 
 
 class User(BaseModel):
-    name = CharField(unique=True)
-    email = CharField()
-    city = CharField()
-    country = CharField()
-    ideal = BooleanField()
-    visa = BooleanField()
-    mastercard = BooleanField()
-    americanexpress = BooleanField()
-    paypal = BooleanField()
+    username = CharField(unique=True)
+    firstname = CharField()
+    lastname = CharField()
+    shipping_address = CharField()
+    billing_address = CharField()
 
 
 class Product(BaseModel):
     name = CharField()
     description = TextField()
     price = DecimalField(decimal_places=2, auto_round=True)
-    in_stock = IntegerField()
+    quantity = IntegerField()
 
     class Meta:
         constraints = [Check('price > 0')]
@@ -46,13 +42,9 @@ class ProductTag(BaseModel):
     tag = ForeignKeyField(Tag)
 
 
-# class Purchase(BaseModel):
-#     buyer = ForeignKeyField(User)
-#     product = ForeignKeyField(Product)
-#     quantity = IntegerField()
-
-
-def create_tables():
-    with db:
-        db.create_tables([User, Product, UserProduct,
-                         Tag, ProductTag])
+class Purchase(BaseModel):
+    product = ForeignKeyField(Product)
+    buyer = ForeignKeyField(User)
+    seller = ForeignKeyField(User)
+    quantity = IntegerField()
+    date = DateField()
