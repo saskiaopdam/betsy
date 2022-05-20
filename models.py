@@ -22,7 +22,6 @@ class Product(BaseModel):
     name = CharField()
     description = TextField()
     price = DecimalField(decimal_places=2, auto_round=True)
-    quantity = IntegerField()
 
     class Meta:
         constraints = [Check('price > 0')]
@@ -31,10 +30,11 @@ class Product(BaseModel):
 class UserProduct(BaseModel):
     user = ForeignKeyField(User)
     product = ForeignKeyField(Product)
+    available = IntegerField()
 
 
 class Tag(BaseModel):
-    label = CharField(unique=True)
+    name = CharField(unique=True)
 
 
 class ProductTag(BaseModel):

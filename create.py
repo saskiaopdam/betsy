@@ -1,3 +1,4 @@
+from unicodedata import name
 import models
 from peewee import *
 
@@ -10,21 +11,11 @@ Tag = models.Tag
 ProductTag = models.ProductTag
 Purchase = models.Purchase
 
-# db.connect()
 
-# db.create_tables([User, Product, UserProduct,
-#                   Tag, ProductTag, Purchase])
+db.create_tables([User, Product, UserProduct,
+                  Tag, ProductTag, Purchase])
 
-
-def create_tables():
-    with db:
-        db.create_tables([User, Product, UserProduct,
-                         Tag, ProductTag, Purchase])
-
-
-create_tables()
-
-# create fake users
+# create some users
 User.create(username="userA", firstname="firstnameA", lastname="lastnameA",
             shipping_address="shiptoA", billing_address="billtoA")
 User.create(username="userB", firstname="firstnameB", lastname="lastnameB",
@@ -33,51 +24,51 @@ User.create(username="userC", firstname="firstnameC", lastname="lastnameC",
             shipping_address="shiptoC", billing_address="billtoC")
 
 
-# create fake products
+# create some products
 Product.create(name="raindrop earrings",
-               description="hand painted enamel earrings", price=25.5, quantity=40)
+               description="hand painted enamel earrings", price=25.5)
 Product.create(name="sunburst earrings",
-               description="made with 100 % pure love", price=23.98, quantity=20)
+               description="made with 100 % pure love", price=23.98)
 Product.create(name="bridesmaid pajamas",
-               description="look cute while remaining modest and comfy", price=50.68, quantity=10)
+               description="look cute while remaining modest and comfy", price=50.68)
 Product.create(name="women sleepwear pajama",
-               description="100 % organic linen(not bleached or dyed fabric)", price=30.33, quantity=50)
+               description="100 % organic linen(not bleached or dyed fabric)", price=30.33)
 Product.create(name="postcard Dog/sausage",
-               description="size A6 postcard", price=15.5, quantity=100)
+               description="size A6 postcard", price=15.5)
 Product.create(name="painting zebra",
-               description="pine white wash panel, hanging system included", price=75, quantity=100)
+               description="pine white wash panel, hanging system included", price=75)
 Product.create(name="coffee grinder - wall mounted",
-               description="classic coffee grinder in pastel green", price=45, quantity=30)
+               description="classic coffee grinder in pastel green", price=45)
 Product.create(name="pink tea or coffee cups",
-               description="coffee or teacups made of white clay finished with a white and pink glaze", price=13.5, quantity=20)
+               description="coffee or teacups made of white clay finished with a white and pink glaze", price=13.5)
 Product.create(name="royal albert",
-               description="approx. 1970s Royal Albert demitasse cup & saucer", price=28.59, quantity=1)
+               description="approx. 1970s Royal Albert demitasse cup & saucer", price=28.59)
 Product.create(name="pablo picasso print",
-               description="very large exhibition poster(20 years) Gallery Delaive Amsterdam - 1994", price=219, quantity=1)
+               description="very large exhibition poster (20 years) Gallery Delaive Amsterdam - 1994", price=219)
 
-# create fake user-products relations
-UserProduct.create(user_id=1, product_id=1)
-UserProduct.create(user_id=1, product_id=2)
-UserProduct.create(user_id=1, product_id=3)
-UserProduct.create(user_id=2, product_id=4)
-UserProduct.create(user_id=2, product_id=5)
-UserProduct.create(user_id=2, product_id=6)
-UserProduct.create(user_id=3, product_id=7)
-UserProduct.create(user_id=3, product_id=8)
-UserProduct.create(user_id=3, product_id=9)
-UserProduct.create(user_id=3, product_id=10)
+# create some user-products relations
+UserProduct.create(user_id=1, product_id=1, available=50)
+UserProduct.create(user_id=1, product_id=2, available=50)
+UserProduct.create(user_id=1, product_id=3, available=50)
+UserProduct.create(user_id=2, product_id=4, available=50)
+UserProduct.create(user_id=2, product_id=5, available=100)
+UserProduct.create(user_id=2, product_id=6, available=10)
+UserProduct.create(user_id=3, product_id=7, available=1)
+UserProduct.create(user_id=3, product_id=8, available=2)
+UserProduct.create(user_id=3, product_id=9, available=1)
+UserProduct.create(user_id=3, product_id=10, available=1)
 
 # create tags
-Tag.create(label="jewellery & accessories")
-Tag.create(label="clothing & shoes")
-Tag.create(label="home & living")
-Tag.create(label="wedding & party")
-Tag.create(label="toys & entertainment")
-Tag.create(label="art & collectibles")
-Tag.create(label="craft supplies & tools")
-Tag.create(label="vintage")
+Tag.create(name="jewellery & accessories")
+Tag.create(name="clothing & shoes")
+Tag.create(name="home & living")
+Tag.create(name="wedding & party")
+Tag.create(name="toys & entertainment")
+Tag.create(name="art & collectibles")
+Tag.create(name="craft supplies & tools")
+Tag.create(name="vintage")
 
-# create fake products-tag relations
+# create some products-tag relations
 ProductTag.create(product_id=1, tag_id=1)
 ProductTag.create(product_id=1, tag_id=4)
 ProductTag.create(product_id=2, tag_id=1)
