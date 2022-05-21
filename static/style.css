@@ -1,0 +1,66 @@
+:root {
+  --padding-basic: 10px;
+  --fontsize-basic: 18px;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  font-size: var(--fontsize-basic);
+}
+
+header {
+  flex-grow: 0;
+  padding: var(--padding-basic);
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+nav a {
+  text-decoration: none;
+  color: black;
+}
+nav a.brand {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+main {
+  flex-grow: 1;
+  padding: var(--padding-basic);
+}
+
+footer {
+  flex-grow: 0;
+  padding: var(--padding-basic);
+  text-align: center;
+}
+
+h1,
+h2 {
+  text-align: center;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.search {
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 5px;
+  width: 100%;
+}
+
+form {
+  background-color: #eee;
+  width: 50%;
+  margin: 0 auto;
+  padding: var(--padding-basic);
+}/*# sourceMappingURL=style.css.map */

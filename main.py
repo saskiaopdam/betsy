@@ -10,28 +10,45 @@ Product = models.Product
 UserProduct = models.UserProduct
 Tag = models.Tag
 ProductTag = models.ProductTag
-Purchase = models.Purchase
+Transaction = models.Transaction
 
 
+# QUERIES - optional and required
+
+
+# optional
 def list_users():
 
     users = User.select()
+
+    # for user in users:
+    #     # print(user.__dict__)
+    #     print(user.__dict__['__data__'].items())
+
+    #     dict = user.__dict__['__data__']
+
+    #     for key, value in dict.items():
+    #         print(key, value)
+
     print(f'Users:')
     for user in users:
-        print (f'- user id: {user.id}, username: "{user.username}", first name: "{user.firstname}", last name: "{user.lastname}", shipping address: "{user.shipping_address}", billing address: "{user.billing_address}"')
+        print(f'- user id: {user.id}, username: "{user.username}", first name: "{user.firstname}", last name: "{user.lastname}", shipping address: "{user.shipping_address}", billing address: "{user.billing_address}"')
 
 
+# optional
 def list_products():
 
     products = Product.select()
     print(f'Products:')
     for product in products:
-        print(f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}')
+        print(
+            f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}')
 
 
+# required
 def list_user_products(username):
     user = User.get(User.username == username)
-    
+
     products = (Product
                 .select()
                 .join(UserProduct)
@@ -41,19 +58,23 @@ def list_user_products(username):
     print(f'{username} owns the following products:')
 
     for product in products:
-        available = UserProduct.get((UserProduct.user_id == user.id) & (UserProduct.product_id == product.id)).available
+        available = UserProduct.get((UserProduct.user_id == user.id) & (
+            UserProduct.product_id == product.id)).available
 
-        print(f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}, available: {available}')
+        print(
+            f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}, available: {available}')
 
 
+# optional
 def list_tags():
 
     tags = Tag.select()
     print(f'Tags:')
     for tag in tags:
-        print (f'- tag id: {tag.id}, name: "{tag.name}"')
+        print(f'- tag id: {tag.id}, name: "{tag.name}"')
 
 
+# required
 def list_products_per_tag(tagname):
 
     products = (Product
@@ -65,10 +86,38 @@ def list_products_per_tag(tagname):
     print(f'Products tagged "{tagname}":')
 
     for product in products:
-        print(f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}')
+        """
+        sellers: 
+
+        After a transaction, multiple users can become the owners of the same product, and have different quantities of it on stock.
+
+        When filtering the products on tag the user will want to know who the seller or sellers are.
+        """
+        sellers = (User
+                   .select()
+                   .join(UserProduct)
+                   .where(UserProduct.product_id == product.id)
+                   )
+        seller_names = [seller.username for seller in sellers]
+
+        print(
+            f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}, sellers: {seller_names}')
 
 
-# search for term in product name or product description
+# optional
+def list_transactions():
+
+    transactions = Transaction.select()
+    print(f'Transaction:')
+    for transaction in transactions:
+        product = Product.get(Product.id == transaction.product)
+        buyer = User.get(User.id == transaction.buyer)
+        seller = User.get(User.id == transaction.seller)
+
+        print(f'- transaction id: {transaction.id}, product: "{product.name}", buyer: "{buyer.username}", seller: "{seller.username}", quantity: {transaction.quantity}, date: {transaction.date}')
+
+
+# required
 def search(term):
 
     product_name = fn.Lower(Product.name)
@@ -83,58 +132,123 @@ def search(term):
     print(f'The term "{term}" was found in the following products:')
 
     for product in products:
-        print(f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}')
+        print(
+            f'- product id: {product.id}, name: "{product.name}", description: "{product.description}", price: \u20ac{product.price}')
 
 
-# TRANSACTION - purchase of a product
+# required
+def add_product_to_catalog(username, product_name, available):
+    # when? if user x starts offering a product for sale
+    user_id = User.get(User.username == username).id
+    product_id = Product.get(Product.name == product_name).id
 
-
-# if quantity of product owned by user changes
-def update_stock(product_id, quantity):
-    # in userproduct table
-    # seller: quantity - sold amount
-    # buyer: quantity + bought amount
     try:
-        # product = Product.get(Product.id == product_id)
-        # product.quantity = product
-        # product.save()
-        return True
-    except:
-        return False
+        already_listed = UserProduct.get((UserProduct.user_id == user_id) & (
+            UserProduct.product_id == product_id))
+        print(f'"{product_name}" is already listed')
+    except DoesNotExist:
+        try:
+            UserProduct.create(user=user_id, product=product_id,
+                               available=available)
+            print(f'Success: "{product_name}" added to catalog.')
+        except:
+            print(f'Error: "{product_name}" not added to catalog.')
 
 
-# if seller runs out of the product
-def remove_product_from_catalog(user_id, product_id):
+# required
+def remove_product_from_catalog(username, product_name):
+    # when? if user x stops offering a product for sale
+    user_id = User.get(User.username == username).id
+    product_id = Product.get(Product.name == product_name).id
     try:
-        product = UserProduct.get((UserProduct.user_id == user_id) & (
-                            UserProduct.product_id == product_id))
-        product.delete_instance()
-        print(f'Success: {product_id.name} removed from catalog.')
+        userproduct = UserProduct.get((UserProduct.user_id == user_id) & (
+            UserProduct.product_id == product_id))
+        userproduct.delete_instance()
+        print(f'Success: {product_name} removed from catalog.')
     except:
-        print(f'Error: {product_id.name} not removed from catalog.')
+        print(f'Error: {product_name} not removed from catalog.')
 
 
-# if buyer gets the product for the first time
-def add_product_to_catalog(user_id, product_id, available):
+# required
+def update_stock(username, product_name, new_quantity):
+    # when? when a user changes stock on his/her own account
+    user_id = User.get(User.username == username).id
+    product_id = Product.get(Product.name == product_name).id
     try:
-        UserProduct.create(user=user_id, product=product_id, available=available)
-        print(f'Success: {product_id.name} added to catalog.')
+        userproduct = UserProduct.get((UserProduct.user_id == user_id) & (
+            UserProduct.product_id == product_id))
+        userproduct.available = new_quantity
+        userproduct.save()
+        print(f'Stock has been updated.')
     except:
-        print(f'Error: {product_id.name} not added to catalog.')
+        print(f'Stock could not be updated.')
 
 
-def purchase(product_id, buyer_id, seller_id, quantity, date):
-    # register the transaction
-    Purchase.create(product=product_id, buyer=buyer_id, seller=seller_id, quantity=quantity, date=date)
+# helper for purchase()
+def decrement_seller_stock(username, product_name, quantity):
+    # when? when a user sells a product
+    user_id = User.get(User.username == username).id
+    product_id = Product.get(Product.name == product_name).id
+    try:
+        userproduct = UserProduct.get((UserProduct.user_id == user_id) & (
+            UserProduct.product_id == product_id))
+        userproduct.available -= quantity
+        userproduct.save()
+        print(f'Seller stock has been decremented.')
+    except:
+        print(f'Seller stock could not be decremented.')
 
-    # update quantity owned by seller
-    update_stock()
 
-    # update quantity owned by buyer
-    update_stock()
+# helper for purchase()
+def increment_buyer_stock(username, product_name, quantity):
+    # when? when a user buyes a product
+    user_id = User.get(User.username == username).id
+    product_id = Product.get(Product.name == product_name).id
 
-    # if seller runs out of the product
-    remove_product_from_catalog(seller_id, product_id)
+    try:
+        userproduct = UserProduct.get((UserProduct.user_id == user_id) & (
+            UserProduct.product_id == product_id))
+        userproduct.available += quantity
+        userproduct.save()
+        print(f'Buyer stock has been incremented.')
 
-    # if buyer gets the product for the first time
-    add_product_to_catalog(buyer_id, product_id)
+    except DoesNotExist:
+        add_product_to_catalog(username, product_name, quantity)
+
+
+# required
+def purchase(product_name, buyer_username, seller_username, quantity, date):
+
+    product = Product.get(Product.name == product_name)
+    buyer = User.get(User.username == buyer_username)
+    seller = User.get(User.username == seller_username)
+
+    def checkout():
+        # register the transaction
+        Transaction.create(product=product.id, buyer=buyer.id,
+                           seller=seller.id, quantity=quantity, date=date)
+
+        # update quantity owned by seller
+        decrement_seller_stock(seller_username, product_name, quantity)
+
+        # check if product listed with buyer
+        increment_buyer_stock(buyer_username, product_name, quantity)
+
+    def admit_for_checkout():
+        try:
+            # check if seller owns this product and has enough on stock
+            available = UserProduct.get((UserProduct.user_id == seller.id) & (
+                UserProduct.product_id == product.id)).available
+            ordered = quantity
+
+            enough_on_stock = available >= ordered
+            if enough_on_stock:
+                print("proceed to checkout")
+                checkout()
+            else:
+                print(f'{seller.username} does not have enough on stock')
+
+        except DoesNotExist:
+            print(f'{seller.username} does not own {product.name}')
+
+    admit_for_checkout()

@@ -9,11 +9,11 @@ Product = models.Product
 UserProduct = models.UserProduct
 Tag = models.Tag
 ProductTag = models.ProductTag
-Purchase = models.Purchase
+Transaction = models.Transaction
 
 
 db.create_tables([User, Product, UserProduct,
-                  Tag, ProductTag, Purchase])
+                  Tag, ProductTag, Transaction])
 
 # create some users
 User.create(username="userA", firstname="firstnameA", lastname="lastnameA",

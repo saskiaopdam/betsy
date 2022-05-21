@@ -1,0 +1,8 @@
+{% extends "base.html" %} {% block content %} {% if session.username %}
+<h1>My Dashboard</h1>
+<h2>{{ session.username }}</h2>
+
+<form action="" method="post">
+  <input type="submit" value="Logout" />
+</form>
+{% endif %} {% endblock content %}

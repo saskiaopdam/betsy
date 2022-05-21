@@ -19,6 +19,7 @@ class User(BaseModel):
 
 
 class Product(BaseModel):
+    # requirement: "quantity" fullfilled at UserProduct with "available"
     name = CharField()
     description = TextField()
     price = DecimalField(decimal_places=2, auto_round=True)
@@ -28,6 +29,10 @@ class Product(BaseModel):
 
 
 class UserProduct(BaseModel):
+    """
+    available:
+    After a transaction, multiple users can become the owners of the same product, and have different quantities of it on stock.
+    """
     user = ForeignKeyField(User)
     product = ForeignKeyField(Product)
     available = IntegerField()
@@ -42,9 +47,9 @@ class ProductTag(BaseModel):
     tag = ForeignKeyField(Tag)
 
 
-class Purchase(BaseModel):
+class Transaction(BaseModel):
     product = ForeignKeyField(Product)
     buyer = ForeignKeyField(User)
     seller = ForeignKeyField(User)
     quantity = IntegerField()
-    date = DateField()
+    date = DateField(formats='%Y-%m-%d')
